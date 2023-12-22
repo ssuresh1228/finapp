@@ -13,7 +13,7 @@ class Report(Document):
 
 
 '''
-!!!airflow is responsible for populating embedded models!!!
+!!! airflow is responsible for populating embedded models !!!
 '''
 # aggregation of transformed data from all other embedded models
 class Data(BaseModel):
