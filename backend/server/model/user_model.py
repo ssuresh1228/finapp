@@ -15,3 +15,11 @@ class User(BeanieBaseUser, Document):
 # db adapter: links db config and users logic
 async def get_user_db():
     yield BeanieUserDatabase(User)
+    
+# user validation model
+class CreateUserRequest(BaseModel):
+    email: str
+    fullname: str
+    username: str 
+    phone_number: str
+    hashed_password: str

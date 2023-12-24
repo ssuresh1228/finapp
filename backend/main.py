@@ -1,10 +1,12 @@
-from fastapi import FastAPI 
+from fastapi import FastAPI, APIRouter 
 from beanie import init_beanie
-from server.model.user_model import User
+from server.model.user_model import User, CreateUserRequest
 from server.database import db
 from pydantic import BaseModel
+from server.routers import user_route
 
 app = FastAPI()
+router = APIRouter()
 
 @app.get("/", tags=["Root"])
 async def index() -> dict:
@@ -21,19 +23,4 @@ async def beanie_startup():
     )
 
 # register routes here
-class CreateUserRequest(BaseModel):
-    email: str
-    fullname: str
-    username: str 
-    phone_number: str
-    hashed_password: str
-
-@app.post("/register")
-async def create_user(user_data: CreateUserRequest):
-    user = User(email=user_data.email, 
-                fullname=user_data.fullname, 
-                username=user_data.username, 
-                phone_number=user_data.phone_number, 
-                hashed_password=user_data.hashed_password)
-    await user.insert()
-    return {"message": "User created successfully", "user": user}
+app.include_router(user_route.router)
