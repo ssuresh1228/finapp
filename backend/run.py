@@ -3,5 +3,6 @@ import uvicorn
 if __name__ == "__main__":
     uvicorn.run(
         reload = True,
-        app = "main:app"
+        app = "main:app",
+        log_level="verbose"
     )
