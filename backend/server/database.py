@@ -8,3 +8,7 @@ client = motor.motor_asyncio.AsyncIOMotorClient(
     DATABASE_URL, uuidRepresentation="standard"
 )
 db = client["finapp-db"]
+
+# db adapter: links db config and users logic
+async def get_user_db():
+    yield BeanieUserDatabase(User)
