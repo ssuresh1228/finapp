@@ -17,4 +17,3 @@ class UserCreate(BaseModel):
     username: str 
     phone_number: str
     hashed_password: str
-

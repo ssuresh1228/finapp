@@ -1,14 +1,14 @@
 from fastapi import APIRouter
-from server.model.user_model import User, UserCreate
+from server.model.user_model import User
+from server.util.user_manager import get_user_manager
+from server.util.auth_backend import auth_backend
+from server.schemas.user_schema import UserRead, UserUpdate
+from fastapi_users import FastAPIUsers
+from beanie import PydanticObjectId
+
 router = APIRouter()
 
-# user validation
-@router.post("/register")
-async def create_user(user_data: UserCreate):
-    user = User(email=user_data.email, 
-                fullname=user_data.fullname, 
-                username=user_data.username, 
-                phone_number=user_data.phone_number, 
-                hashed_password=user_data.hashed_password)
-    await user.insert()
-    return {"message": "User created successfully", "user": user}
+fastapi_users = FastAPIUsers[User, PydanticObjectId](
+    get_user_manager, 
+    [auth_backend]
+)

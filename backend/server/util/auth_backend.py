@@ -4,7 +4,8 @@ from server.model.user_model import User
 from server.database import get_user_db
 from fastapi_users import FastAPIUsers
 from server.schemas.user_schema import UserCreate, UserRead, UserUpdate
-from server.util.user_manager import get_user_manager
+#from server.util.user_manager import get_user_manager
+import secrets
 
 # combines transport and backend strategy: redis token management + cookie transport
 
@@ -14,6 +15,7 @@ from server.util.user_manager import get_user_manager
 # on logout, the token is deleted from redis key store
 
 # create redis connection
+# docker: docker run -p 6379:6379 --name redis -d redis
 redis = redis.asyncio.from_url("redis://localhost:6379", decode_responses=True)
 
 def get_redis_strategy() -> RedisStrategy:
@@ -32,3 +34,9 @@ auth_backend = AuthenticationBackend(
     transport = cookie_transport,
     get_strategy = get_redis_strategy,
 )
+
+# generates tokens to store in Redis 
+# each token is associated with a user's ID
+def generate_verification_token():
+    token = secrets.token_urlsafe(32)
+    return f"user_ {token}"

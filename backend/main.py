@@ -5,7 +5,7 @@ from server.model.user_model import User
 from server.model.report_model import Report
 from server.database import db
 from pydantic import BaseModel
-from server.routers import user_router, email_router, auth_router
+from server.routers import user_router, auth_router
 
 app = FastAPI()
 router = APIRouter()
@@ -27,11 +27,28 @@ async def beanie_startup():
     )
 
 # register routers here
-
 app.include_router(
-    auth_router.router,
+    auth_router.auth_router,
     prefix="/auth/jwt",
     tags=["auth"]
 )
+
+app.include_router(
+    auth_router.registration_router,
+    prefix="/auth",
+    tags=["auth"]
+)
+
+app.include_router(
+    auth_router.verification_router,
+    prefix="/auth",
+    tags=["auth"]
+)
+
+app.include_router(
+    auth_router.reset_password_router,
+    prefix="/auth",
+    tags=["auth"]
+)
+
 app.include_router(user_router.router)
-app.include_router(email_router.router)
