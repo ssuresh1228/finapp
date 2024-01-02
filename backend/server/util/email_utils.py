@@ -34,6 +34,7 @@ async def send_user_welcome(email:EmailSchema):
     message = MessageSchema(
         subject = "Thanks for registering!",
         recipients = email.email_addresses,
+        template_body = {},
         subtype = MessageType.html
     )
     await fastmail.send_message(message, template_name = "welcome.html")
