@@ -11,5 +11,5 @@ class Transaction(Document):
 # transaction category definition - embedded model
 class Category(BaseModel):
    id: PydanticObjectId = Field(default_factory=PydanticObjectId, alias="_id")
-   name: str
-   description: str 
+   name: str = Field(...)
+   description: str = Field(...)

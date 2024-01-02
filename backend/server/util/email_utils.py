@@ -10,7 +10,7 @@ from server.schemas.email_schema import EmailSchema
 conf = ConnectionConfig(
     MAIL_USERNAME = "python",
     MAIL_PASSWORD = "123",
-    MAIL_FROM = "fastapi-mailer@python.com",
+    MAIL_FROM = "fastapi@python.com",
     MAIL_FROM_NAME = "fastapi-mail testing",
     MAIL_SERVER = "localhost", #maildev SMTP
     MAIL_STARTTLS = False,
@@ -27,16 +27,61 @@ async def default_checker():
     await checker.init_redis()
     return checker
 
-#TODO: user verification email (called in user_manager.py: on_after_request_password)
-async def send_verification_email(email: str, token: str):
+fastmail = FastMail(conf)
+
+# sent to user after successful registration (still needs verification)
+async def send_user_welcome(email:EmailSchema):
+    message = MessageSchema(
+        subject = "Thanks for registering!",
+        recipients = email.email_addresses,
+        subtype = MessageType.html
+    )
+    await fastmail.send_message(message, template_name = "welcome.html")
+
+# sends user email to verify themselves
+async def send_verification_email(email: EmailSchema, token: str):
     body = {
         "token": token
     }
     message = MessageSchema(
         subject = "Verify your account", 
-        recipients = [email],
+        recipients = email.email_addresses,
         template_body = body,
         subtype = MessageType.html
     )
-    fastmail = FastMail(conf)
     await fastmail.send_message(message, template_name = "user_verification.html")
+    
+# sends user email to reset password with embedded token 
+async def send_password_reset_email(email: EmailSchema, token: str):
+    body = {
+        "token": token
+    }
+    message = MessageSchema (
+        subject = "Password Reset",
+        recipients = email.email_addresses,
+        template_body = email.body, 
+        subtype = MessageType.html
+    )
+    await fastmail.send_message(message, template_name="reset_password.html")
+    
+# sends email confirming password change
+# TODO: test password confirm email 
+async def send_password_change_confirmation(email:EmailSchema):
+    message = MessageSchema(
+        subject = "Password Reset",
+        recipients = email.email_addresses,
+        template_body = email.body, 
+        subtype = MessageType.html
+    )
+    await fastmail.send_message(message, template_name = "confirm_password_reset.html")
+    
+# sends email confirming user verification 
+#TODO: test user verified email
+async def send_user_verified_confirmation(email:EmailSchema):
+    message = MessageSchema(
+        subject = "Verification Successful!",
+        recipients = email.email_addresses,
+        template_body = email.body, 
+        subtype = MessageType.html
+    )
+    await fastmail.send_message(message, template_name = "user_verified.html")
