@@ -63,12 +63,12 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
     
     async def on_after_forgot_password(self, user: User, token: str, request: Optional[Request] = None):
         email = EmailSchema(email_addresses = [user.email])
-        await send_password_reset_email(email, token)
-        print("\n-----\nSERVER LOG:", f"user {user.id} forgot password. Reset token: {token}\n-----")
+        await email_utils.send_password_reset_email(email, token)
+        print("\n-----\nSERVER LOG:", f"user {user.id} forgot password. \nReset token: {token}\n-----")
         
     async def on_after_reset_password(self, user: User, request: Optional[Request] = None):
-        email = EmailSchema(email_addresses = [user.email], body = email.body)
-        await send_password_change_confirmation(email)
+        email = EmailSchema(email_addresses = [user.email])
+        await email_utils.send_password_change_confirmation(email)
         print("\n-----\nSERVER LOG:")  
         print(f"user {user.id} successfully reset their password\n-----")
         

@@ -18,8 +18,7 @@ fastapi_users = FastAPIUsers[User, PydanticObjectId](
 )
 
 """
-use user schemas to validate data:
-======
+user schemas:
 UserCreate: validates incoming data for a new user before creating a new user model in db
 UserRead: user data displayed/used on frontend (i.e. doesn't include hashed password field)
 """
@@ -35,9 +34,9 @@ registration_router = fastapi_users.get_register_router(UserRead, UserCreate)
 
 # creates "/request-verify-token" and "/verify" routes to manage user email verification 
 # calls on_after_verify() in UserManager on success 
-#TODO: fix /verify token not validating generated token 
 verification_router = fastapi_users.get_verify_router(UserRead)
 
-# creates "/forgot-password" and "/reset-password" routes to reset user password
+# /forgot-password: generates a temporary token and call on_after_forgot_password handler if user exists
+# /reset-password: uses token generated in forgot-password to reset password
 # calls on_after_forgot_password in UserManager on success
 reset_password_router = fastapi_users.get_reset_password_router()

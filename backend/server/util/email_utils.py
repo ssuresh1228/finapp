@@ -58,7 +58,7 @@ async def send_password_reset_email(email: EmailSchema, token: str):
         "token": token
     }
     message = MessageSchema (
-        subject = "Password Reset",
+        subject = "Reset your password",
         recipients = email.email_addresses,
         template_body = email.body, 
         subtype = MessageType.html
@@ -66,10 +66,10 @@ async def send_password_reset_email(email: EmailSchema, token: str):
     await fastmail.send_message(message, template_name="reset_password.html")
     
 # sends email confirming password change
-# TODO: test password confirm email 
+# TODO: test password reset confirmation email 
 async def send_password_change_confirmation(email:EmailSchema):
     message = MessageSchema(
-        subject = "Password Reset",
+        subject = "Your password has been reset",
         recipients = email.email_addresses,
         template_body = email.body, 
         subtype = MessageType.html
@@ -77,7 +77,6 @@ async def send_password_change_confirmation(email:EmailSchema):
     await fastmail.send_message(message, template_name = "confirm_password_reset.html")
     
 # sends email confirming user verification 
-#TODO: test user verified email
 async def send_user_verified_confirmation(email:EmailSchema):
     message = MessageSchema(
         subject = "Verification Successful!",
