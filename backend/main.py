@@ -26,29 +26,30 @@ async def beanie_startup():
         ],
     )
 
-# register routers here
+# login router
 app.include_router(
     auth_router.auth_router,
-    prefix="/auth/jwt",
-    tags=["auth"]
+    prefix ="/auth/jwt",
+    tags = ["auth"]
 )
 
+# user registration 
 app.include_router(
     auth_router.registration_router,
-    prefix="/auth",
-    tags=["auth"]
+    prefix = "/auth",
+    tags = ["auth"]
 )
-
+# user verification
 app.include_router(
-    auth_router.verification_router,
-    prefix="/auth",
-    tags=["auth"]
+    auth_router.custom_verification_router,
+    prefix = "/auth",
+    tags = ["auth"]
 )
-
+# password reset
 app.include_router(
     auth_router.reset_password_router,
-    prefix="/auth",
-    tags=["auth"]
+    prefix = "/auth",
+    tags = ["auth"]
 )
 
 app.include_router(user_router.router)

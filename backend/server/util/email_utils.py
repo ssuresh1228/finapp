@@ -29,17 +29,7 @@ async def default_checker():
 
 fastmail = FastMail(conf)
 
-# sent to user after successful registration (still needs verification)
-async def send_user_welcome(email:EmailSchema):
-    message = MessageSchema(
-        subject = "Thanks for registering!",
-        recipients = email.email_addresses,
-        template_body = {},
-        subtype = MessageType.html
-    )
-    await fastmail.send_message(message, template_name = "welcome.html")
-
-# sends user email to verify themselves
+# sends user email with embedded token for verification
 async def send_verification_email(email: EmailSchema, token: str):
     body = {
         "token": token
@@ -51,7 +41,7 @@ async def send_verification_email(email: EmailSchema, token: str):
         subtype = MessageType.html
     )
     await fastmail.send_message(message, template_name = "user_verification.html")
-    
+   
 # sends user email to reset password with embedded token 
 async def send_password_reset_email(email: EmailSchema, token: str):
     body = {
@@ -66,7 +56,6 @@ async def send_password_reset_email(email: EmailSchema, token: str):
     await fastmail.send_message(message, template_name="reset_password.html")
     
 # sends email confirming password change
-# TODO: test password reset confirmation email 
 async def send_password_change_confirmation(email:EmailSchema):
     message = MessageSchema(
         subject = "Your password has been reset",
@@ -76,12 +65,3 @@ async def send_password_change_confirmation(email:EmailSchema):
     )
     await fastmail.send_message(message, template_name = "confirm_password_reset.html")
     
-# sends email confirming user verification 
-async def send_user_verified_confirmation(email:EmailSchema):
-    message = MessageSchema(
-        subject = "Verification Successful!",
-        recipients = email.email_addresses,
-        template_body = email.body, 
-        subtype = MessageType.html
-    )
-    await fastmail.send_message(message, template_name = "user_verified.html")

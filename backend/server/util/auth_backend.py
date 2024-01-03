@@ -1,4 +1,4 @@
-import redis.asyncio
+import redis.asyncio as redis
 from fastapi_users.authentication import CookieTransport, AuthenticationBackend, RedisStrategy
 from server.model.user_model import User
 from server.database import get_user_db
@@ -16,7 +16,7 @@ import secrets
 
 # create redis connection
 # docker: docker run -p 6379:6379 --name redis -d redis
-redis = redis.asyncio.from_url("redis://localhost:6379", decode_responses=True)
+redis = redis.from_url("redis://localhost:6379", decode_responses=True)
 
 def get_redis_strategy() -> RedisStrategy:
     return RedisStrategy(redis, lifetime_seconds=3600)
@@ -35,8 +35,17 @@ auth_backend = AuthenticationBackend(
     get_strategy = get_redis_strategy,
 )
 
-# generates tokens to store in Redis 
-# each token is associated with a user's ID
-def generate_verification_token():
-    token = secrets.token_urlsafe(32)
-    return f"user_ {token}"
+# generates tokens for user verification 
+async def generate_verification_token(user_id: str) -> str:
+    verify_token = "user_verify: " + secrets.token_urlsafe(32)
+    # store token with reference to user ID + 1 hour expiration time
+    await redis.set(f"{verify_token}", user_id, ex=3600)
+    return verify_token
+
+# generates user session keys
+async def generate_session_token(user_id: str) -> str:
+    session_key = secrets.token_urlsafe(32)
+    # store key with reference to user ID + 1 day expiration time
+    await redis.set(f"user_session: {session_key}", user_id, ex=86400)
+    return session_key
+

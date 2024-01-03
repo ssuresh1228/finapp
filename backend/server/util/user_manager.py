@@ -28,27 +28,20 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
     verification_token_secret = VERIFICATION_TOKEN_SECRET
     
     async def on_after_login(self, user: User, request: Optional[Request] = None, response: Optional[Request] = None):
-        #TODO: reports/transactions functionality
+        #TODO: reports/transactions functionality 
         # redis token is valid for 1 hour
-        await redis.set(redis_token, str(user.id), ex=3600)
+        session_key = await generate_session_token(str(user.id))
         print("\n-----\nSERVER LOG:", f"user {user.id} logged in")
-
-    async def on_after_request_verify(self, user: User, token: str, request: Optional[Request] = None):
-        print("\n-----\nSERVER LOG:", f"user {user.id} requested verification. Verification token: {token}\n-----")
-        email = EmailSchema(email_addresses = [user.email])
-        await email_utils.send_verification_email(email, token)
-      
+        
     async def on_after_register(self, user: User, request: Optional[Request] = None):
-        # called after successful user registration (user still needs to be verified)
-        # sends a generic welcome email with a link for verification
+        # /register handler - creates token and sends email for user verification
+        verify_token = await generate_verification_token(str(user.id))
         email = EmailSchema(email_addresses = [user.email])
-        print("\n-----\nSERVER LOG:",  f"User {user.fullname} created an account - verification required.")
-        await email_utils.send_user_welcome(email) 
+        print("\n-----\nSERVER LOG:",  f"User {user.fullname} registered - verification token: {verify_token}.")
+        await email_utils.send_verification_email(email, verify_token)
         
     async def on_after_verify(self, user: User, request: Optional[Request] = None):
-        # what to do immediately after successful user verification: sends verification confirmation email
-        email = EmailSchema(email_addresses = [user.email])
-        await email_utils.send_user_verified_confirmation(email)    
+        # /verify handler: user is rerouted to frontend, this is just for logging   
         print("\n-----\nSERVER LOG:", f"user {user.id} verified\n-----")
     
     async def validate_password(self, password: str, user: Union[UserCreate, User]) -> None:
