@@ -30,9 +30,9 @@ async def default_checker():
 fastmail = FastMail(conf)
 
 # sends user email with embedded token for verification
-async def send_verification_email(email: EmailSchema, token: str):
+async def send_verification_email(email: EmailSchema, verification_url: str):
     body = {
-        "token": token
+        "verification_url": verification_url
     }
     message = MessageSchema(
         subject = "Verify your account", 

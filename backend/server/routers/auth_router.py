@@ -38,7 +38,7 @@ reset_password_router = fastapi_users.get_reset_password_router()
 redis_client = redis.from_url("redis://localhost:6379", decode_responses=True)
 # /verify: gets a user's redis verification and verifies if they exist and if token is valid
 custom_verification_router = APIRouter()
-@custom_verification_router.post("/verify")    
+@custom_verification_router.get("/verify")    
 async def user_verification(verify_token: str, user_manager = Depends(get_user_manager)):
     # get the user's ID from the redis token 
     user_id = await redis_client.get(f"{verify_token}")
@@ -49,8 +49,8 @@ async def user_verification(verify_token: str, user_manager = Depends(get_user_m
         if user:
             user.is_verified = True
             await user.save()
-            # redirects to swagger docs for now
-            return RedirectResponse(url="http://localhost:8000/welcome", status_code=303)
+            # redirects to placeholder page
+            return RedirectResponse(url="http://localhost:8000/docs", status_code=303)
         else:
             return {"error": "User not found"}
     else:

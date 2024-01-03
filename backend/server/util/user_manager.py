@@ -35,10 +35,12 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         
     async def on_after_register(self, user: User, request: Optional[Request] = None):
         # /register handler - creates token and sends email for user verification
+        #verification token and construct the verification URL
         verify_token = await generate_verification_token(str(user.id))
+        verification_url = f"http://localhost:8000/auth/verify?verify_token={verify_token}"
         email = EmailSchema(email_addresses = [user.email])
         print("\n-----\nSERVER LOG:",  f"User {user.fullname} registered - verification token: {verify_token}.")
-        await email_utils.send_verification_email(email, verify_token)
+        await email_utils.send_verification_email(email, verification_url)
         
     async def on_after_verify(self, user: User, request: Optional[Request] = None):
         # /verify handler: user is rerouted to frontend, this is just for logging   
