@@ -39,17 +39,12 @@ app.include_router(
     prefix = "/auth",
     tags = ["auth"]
 )
-# user verification
+# user verification, forgot password, reset password
 app.include_router(
-    auth_router.custom_verification_router,
+    auth_router.custom_auth_router,
     prefix = "/auth",
     tags = ["auth"]
 )
-# password reset
-app.include_router(
-    auth_router.reset_password_router,
-    prefix = "/auth",
-    tags = ["auth"]
-)
+
 
 app.include_router(user_router.router)

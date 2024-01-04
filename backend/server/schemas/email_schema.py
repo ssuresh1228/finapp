@@ -4,5 +4,11 @@ from typing import List, Dict, Any, Optional
 # use Jinja2 HTML templates 
 class EmailSchema(BaseModel):
     email_addresses: List[EmailStr] # email addresses to send mail to 
-    #template_name (str): html template to send in message body
     body: Optional[Dict[str, Any]] = {}
+    
+class ForgotPasswordRequest(BaseModel):
+    password_email: EmailStr
+
+class ResetPasswordRequest(BaseModel):
+    reset_token: str
+    new_password: str

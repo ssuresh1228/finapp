@@ -4,7 +4,7 @@ from pydantic import EmailStr, BaseModel
 from typing import List, Dict, Any
 from pathlib import Path
 from server.schemas.email_schema import EmailSchema
-
+from server.model.user_model import User
 # email sender config
 # SMTP server: docker run -p 1080:1080 -p 1025:1025 maildev/maildev
 conf = ConnectionConfig(
@@ -21,6 +21,11 @@ conf = ConnectionConfig(
     MAIL_DEBUG = 1,
     VALIDATE_CERTS = False
 )
+
+# helper method for resetting user password
+async def get_user_by_email(email:str) -> User:
+    user = await User.find_one(User.email == email)
+    return user
 
 async def default_checker():
     checker = DefaultChecker(db_provider="redis")
@@ -43,19 +48,21 @@ async def send_verification_email(email: EmailSchema, verification_url: str):
     await fastmail.send_message(message, template_name = "user_verification.html")
    
 # sends user email to reset password with embedded token 
-async def send_password_reset_email(email: EmailSchema, token: str):
+# routes to frontend
+async def send_password_reset_email(email: EmailSchema, reset_url: str):
     body = {
-        "token": token
+        "reset_url": reset_url
     }
     message = MessageSchema (
         subject = "Reset your password",
         recipients = email.email_addresses,
-        template_body = email.body, 
+        template_body = body, 
         subtype = MessageType.html
     )
     await fastmail.send_message(message, template_name="reset_password.html")
     
 # sends email confirming password change
+#TODO: handle updating the password field (frontend routes here after user updates password on client)
 async def send_password_change_confirmation(email:EmailSchema):
     message = MessageSchema(
         subject = "Your password has been reset",

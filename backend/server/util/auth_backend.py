@@ -37,15 +37,21 @@ auth_backend = AuthenticationBackend(
 
 # generates tokens for user verification 
 async def generate_verification_token(user_id: str) -> str:
-    verify_token = "user_verify: " + secrets.token_urlsafe(32)
+    verify_token = "user_verify_" + secrets.token_urlsafe(32)
     # store token with reference to user ID + 1 hour expiration time
     await redis.set(f"{verify_token}", user_id, ex=3600)
     return verify_token
 
 # generates user session keys
 async def generate_session_token(user_id: str) -> str:
-    session_key = secrets.token_urlsafe(32)
+    session_key = "user_session_" + secrets.token_urlsafe(32)
     # store key with reference to user ID + 1 day expiration time
-    await redis.set(f"user_session: {session_key}", user_id, ex=86400)
+    await redis.set(f"{session_key}", user_id, ex=86400)
     return session_key
 
+# generates password reset tokens
+async def generate_password_reset_token(user_id: str) -> str: 
+    # generate password token with 10 min expiration
+    password_token = "reset_password_" + secrets.token_urlsafe(32)
+    await redis.set(f"{password_token}", user_id, ex=600)
+    return password_token
