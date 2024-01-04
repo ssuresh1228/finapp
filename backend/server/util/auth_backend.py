@@ -35,6 +35,7 @@ auth_backend = AuthenticationBackend(
     get_strategy = get_redis_strategy,
 )
 
+# redis is responsible for token management 
 # generates tokens for user verification 
 async def generate_verification_token(user_id: str) -> str:
     verify_token = "user_verify_" + secrets.token_urlsafe(32)

@@ -6,6 +6,10 @@ class EmailSchema(BaseModel):
     email_addresses: List[EmailStr] # email addresses to send mail to 
     body: Optional[Dict[str, Any]] = {}
     
+class UserLoginRequest(BaseModel):
+    user_email: EmailStr 
+    user_password: str
+    
 class ForgotPasswordRequest(BaseModel):
     password_email: EmailStr
 

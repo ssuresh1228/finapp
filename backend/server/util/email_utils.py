@@ -22,11 +22,6 @@ conf = ConnectionConfig(
     VALIDATE_CERTS = False
 )
 
-# helper method for resetting user password
-async def get_user_by_email(email:str) -> User:
-    user = await User.find_one(User.email == email)
-    return user
-
 async def default_checker():
     checker = DefaultChecker(db_provider="redis")
     await checker.init_redis()

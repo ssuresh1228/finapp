@@ -4,14 +4,10 @@ from fastapi.responses import RedirectResponse
 from fastapi_users import FastAPIUsers
 from server.model.user_model import User 
 from server.schemas.user_schema import UserCreate, UserRead, UserUpdate
-from server.schemas.email_schema import EmailSchema, ForgotPasswordRequest, ResetPasswordRequest
+from server.schemas.email_schema import EmailSchema, ForgotPasswordRequest, ResetPasswordRequest, UserLoginRequest
 from server.util.auth_backend import auth_backend, redis
 from server.util.user_manager import get_user_manager
-from server.util.email_utils import get_user_by_email
-import server.util.auth_backend
 
-# configures routes for registration, authentication, login, password recovery, etc
-# requires user model to be read, not its schema 
 
 # user model used for CRUD ops (on successful validation)
 fastapi_users = FastAPIUsers[User, PydanticObjectId](
@@ -19,19 +15,34 @@ fastapi_users = FastAPIUsers[User, PydanticObjectId](
     [auth_backend] # single auth backend still needs to be passed as a single element list
 )
 
+custom_auth_router = APIRouter()
+
 # creates "/login" and "/logout" routes for auth backend (Redis)
 # calls on_after_login() in UserManager after successful login 
 auth_router = fastapi_users.get_auth_router(auth_backend, requires_verification=True) 
+
+#TODO: login + authentication
+@custom_auth_router.get("/login")
+async def login(request: UserLoginRequest, user_manager = Depends(get_user_manager)):
+    # grab the username and password 
+    email = request.user_email
+    password = request.user_password   
+    # pass these to login handler for querying user and verifying password 
+    user = await user_manager.user_login(email, password)
+    # raise error if user isn't found
+    if not user:
+        raise HTTPException(status_code=401, detail="Invalid credentials entered.")
+    else:
+        # call on_after_login on success
+        user = await user_manager.on_after_login(user)
+    
+    
+#TODO: logout + redis session invalidation 
 
 # creates "/register" route for users to create a new account 
 # calls on_after_register() in UserManager on success
 # validates user's entered info against UserCreate schema to make sure it's valid 
 registration_router = fastapi_users.get_register_router(UserRead, UserCreate)
-
-
-#redis_client = redis.from_url("redis://localhost:6379", decode_responses=True)
-# /verify: gets a user's redis verification and verifies if they exist and if token is valid
-custom_auth_router = APIRouter()
 
 @custom_auth_router.get("/verify")    
 async def user_verification(verify_token: str, user_manager = Depends(get_user_manager)):
@@ -57,14 +68,13 @@ async def user_verification(verify_token: str, user_manager = Depends(get_user_m
 @custom_auth_router.get("/forgot-password")
 async def forgot_password(request: ForgotPasswordRequest, user_manager = Depends(get_user_manager)):
     # get the user's email from the request
-    user = await get_user_by_email(request.password_email)
+    user = await user_manager.get_user_by_email(request.password_email)
     # if the user exists, generate a password reset token + URL, then mail it to them
     if user:
         # send the reset password email
         await user_manager.on_after_forgot_password(user)  
         return {"message": "If user with that email exists, a password reset email was sent"}
         
-# TODO: /reset-password: resets user password using token generated from /forgot-password
 @custom_auth_router.post("/reset-password")
 async def reset_password(request: ResetPasswordRequest, user_manager = Depends(get_user_manager)):
     # get the token from /forgot-password 
@@ -84,4 +94,5 @@ async def reset_password(request: ResetPasswordRequest, user_manager = Depends(g
     # call handler to send password change confirmation email:
     await user_manager.on_after_reset_password(user)
     #redirect to login page - docs page as placeholder
+
     

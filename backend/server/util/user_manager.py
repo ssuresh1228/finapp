@@ -1,6 +1,7 @@
 from server.model.user_model import User, UserCreate
 from server.database import get_user_db
 from fastapi_users import BaseUserManager, InvalidPasswordException
+from fastapi_users.password import PasswordHelper
 from fastapi_users_db_beanie import ObjectIDIDMixin 
 from fastapi_users.db import BeanieBaseUser, BeanieUserDatabase
 from fastapi import Depends, Request
@@ -14,10 +15,34 @@ from server.util.auth_backend import generate_verification_token, generate_passw
 import secrets
 from server.util.auth_backend import redis
 from server.schemas.email_schema import EmailSchema
+from passlib.context import CryptContext
+
+# helper methods for user_login
+pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto") 
+async def verify_user_password(password: str, hashed_password: str):
+    verified, _ = pwd_context.verify_and_update(password, hashed_password)
+    return verified
+    
+async def get_user_by_email(email:str) -> User:
+    user = await User.find_one(User.email == email)
+    return user
 
 # core logic of user management
 # ID Parser Mixin: ObjectIDIDMixin + PydanticObjectId used for MongoDB's ObjectID
 class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
+    
+    # TODO 
+    async def user_login(self, email: str, password: str):
+        # query db for this user
+        user_in_db = await get_user_by_email(email)
+        # return none if user doesn't exist 
+        if not user_in_db:
+            return None
+        # compare hashed passwords to verify entered password
+        if not await verify_user_password(password, user_in_db.hashed_password):
+            # return None if not a match
+            return None
+        return user_in_db
    
     async def on_after_login(self, user: User, request: Optional[Request] = None, response: Optional[Request] = None):
         #TODO: reports/transactions functionality 
@@ -69,9 +94,11 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
     async def on_after_update(self, user: User, update_dict: Dict[str, Any], request: Optional[Request] = None):
         print("\n-----\nSERVER LOG:", f"User {user.id} updated: {update_dict}\n-----")
     
+    # TODO: send email confirmation to user with link confirming account deletion
     async def on_before_delete(self, user: User, request: Optional[Request] = None):
         print("\n-----\nSERVER LOG:", f"user {user.id} is going to be deleted\n-----")
-        
+         
+    # TODO: on_before_delete html button leads here - user confirmed deletion     
     async def on_after_delete(self, user: User, request: Optional[Request] = None):
         print("\n-----\nSERVER LOG:", f"user {user.id} successfully deleted\n-----")
     
