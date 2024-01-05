@@ -1,4 +1,5 @@
-from beanie import PydanticObjectId
+from beanie import PydanticObjectId 
+from pydantic import BaseModel, EmailStr
 from fastapi_users import schemas
 
 # used when a new user is registered
@@ -26,10 +27,13 @@ class UserUpdate(schemas.BaseUserUpdate):
     phone_number: str
     password: str
     
-"""fast-api users default fields:
-    id (ID) – user's Unique identifier. matches the type of ID defined (PydanticObjectID)
-    email (str) – user's email. validated by email-validator.
-    is_active (bool) – if user is active. If not, login and forgot password requests will be denied. Defaults to True.
-    is_verified (bool) – if user is verified. Optional but helpful with the verify router logic. Defaults to False.
-    is_superuser (bool) – if user is a superuser. Useful to implement administration logic. Defaults to False.
-"""
+class UserLoginRequest(BaseModel):
+    user_email: EmailStr 
+    user_password: str
+
+class UserRegistrationRequest(BaseModel):
+    email: str
+    fullname: str
+    username: str
+    phone_number: str
+    password: str

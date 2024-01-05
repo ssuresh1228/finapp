@@ -5,14 +5,15 @@ from typing import List, Dict, Any, Optional
 class EmailSchema(BaseModel):
     email_addresses: List[EmailStr] # email addresses to send mail to 
     body: Optional[Dict[str, Any]] = {}
-    
-class UserLoginRequest(BaseModel):
-    user_email: EmailStr 
-    user_password: str
-    
+
 class ForgotPasswordRequest(BaseModel):
     password_email: EmailStr
 
-class ResetPasswordRequest(BaseModel):
+class PasswordResetForm(BaseModel):
     reset_token: str
     new_password: str
+
+class ConfirmPasswordReset(BaseModel):
+    reset_token:str
+    new_password:str
+    confirm_password:str

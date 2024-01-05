@@ -26,18 +26,15 @@ async def beanie_startup():
         ],
     )
 
-# user registration (default fastapi-users)
-app.include_router(
-    auth_router.registration_router,
-    prefix = "/auth",
-    tags = ["auth"]
-)
-# user verification, forgot password, reset password
+# user registration, verification, forgot password, reset password
 app.include_router(
     auth_router.custom_auth_router,
     prefix = "/auth",
     tags = ["auth"]
 )
 
-
-app.include_router(user_router.router)
+app.include_router(
+    user_router.router,
+    prefix = "/user",
+    tags = ["user functions"]
+)

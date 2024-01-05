@@ -3,16 +3,13 @@ from fastapi_users.authentication import CookieTransport, AuthenticationBackend,
 from server.model.user_model import User
 from server.database import get_user_db
 from fastapi_users import FastAPIUsers
-from server.schemas.user_schema import UserCreate, UserRead, UserUpdate
-#from server.util.user_manager import get_user_manager
+from server.schemas.user_schema import UserCreate, UserRead, UserUpdate, UserRegistrationRequest
 import secrets
-
-# combines transport and backend strategy: redis token management + cookie transport
 
 # --- strategy --- 
 # a token is generated and associated with a user_id in DB
 # on each request, retrieve this token from redis to get corresponding user_id
-# on logout, the token is deleted from redis key store
+# on logout, redis deletes user's session key, invalidating their session
 
 # create redis connection
 # docker: docker run -p 6379:6379 --name redis -d redis
@@ -35,17 +32,17 @@ auth_backend = AuthenticationBackend(
     get_strategy = get_redis_strategy,
 )
 
-# redis is responsible for token management 
 # generates tokens for user verification 
-async def generate_verification_token(user_id: str) -> str:
-    verify_token = "user_verify_" + secrets.token_urlsafe(32)
-    # store token with reference to user ID + 1 hour expiration time
-    await redis.set(f"{verify_token}", user_id, ex=3600)
+# temporarily cache user data in redis 
+async def generate_verification_token(user_data: UserRegistrationRequest) -> str:
+    verify_token = "verify_" + secrets.token_urlsafe(32)
+    # store token with reference to user email with 10 min expiration
+    await redis.set(f"{verify_token}", user_data.model_dump_json(), ex=600)
     return verify_token
 
 # generates user session keys
 async def generate_session_token(user_id: str) -> str:
-    session_key = "user_session_" + secrets.token_urlsafe(32)
+    session_key = "session_" + secrets.token_urlsafe(32)
     # store key with reference to user ID + 1 day expiration time
     await redis.set(f"{session_key}", user_id, ex=86400)
     return session_key

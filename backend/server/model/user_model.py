@@ -10,10 +10,22 @@ class User(BeanieBaseUser, Document):
     phone_number: str
     hashed_password: str
 
-# user validation model - makes sure all fields are present before actually creating a user (validate_password)
+# user validation model - 
+# makes sure all fields are d before actually creating a user
 class UserCreate(BaseModel):
     email: str
     fullname: str
     username: str 
     phone_number: str
     hashed_password: str
+    
+class Config:
+    schema_example = {
+        "user example": {
+            "email" : "user@example.com",
+            "fullname": "firstname lastname",
+            "username": "user123",
+            "phone_number":"123-456-7890",
+            "hashed_password": "hashedpassword123"
+        }
+    }

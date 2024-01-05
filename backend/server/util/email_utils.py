@@ -5,6 +5,7 @@ from typing import List, Dict, Any
 from pathlib import Path
 from server.schemas.email_schema import EmailSchema
 from server.model.user_model import User
+from server.schemas.user_schema import UserCreate
 # email sender config
 # SMTP server: docker run -p 1080:1080 -p 1025:1025 maildev/maildev
 conf = ConnectionConfig(
@@ -42,8 +43,7 @@ async def send_verification_email(email: EmailSchema, verification_url: str):
     )
     await fastmail.send_message(message, template_name = "user_verification.html")
    
-# sends user email to reset password with embedded token 
-# routes to frontend
+# sends user email with link to reset password 
 async def send_password_reset_email(email: EmailSchema, reset_url: str):
     body = {
         "reset_url": reset_url
@@ -54,10 +54,10 @@ async def send_password_reset_email(email: EmailSchema, reset_url: str):
         template_body = body, 
         subtype = MessageType.html
     )
-    await fastmail.send_message(message, template_name="reset_password.html")
+    await fastmail.send_message(message, template_name="reset_password_link.html")
     
 # sends email confirming password change
-#TODO: handle updating the password field (frontend routes here after user updates password on client)
+# (frontend routes here after user updates password on client)
 async def send_password_change_confirmation(email:EmailSchema):
     message = MessageSchema(
         subject = "Your password has been reset",
@@ -66,4 +66,3 @@ async def send_password_change_confirmation(email:EmailSchema):
         subtype = MessageType.html
     )
     await fastmail.send_message(message, template_name = "confirm_password_reset.html")
-    
