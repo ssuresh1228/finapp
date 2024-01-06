@@ -6,6 +6,7 @@ from pathlib import Path
 from server.schemas.email_schema import EmailSchema
 from server.model.user_model import User
 from server.schemas.user_schema import UserCreate
+
 # email sender config
 # SMTP server: docker run -p 1080:1080 -p 1025:1025 maildev/maildev
 conf = ConnectionConfig(

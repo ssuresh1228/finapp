@@ -1,10 +1,13 @@
 import redis.asyncio as redis
+from fastapi import Request
 from fastapi_users.authentication import CookieTransport, AuthenticationBackend, RedisStrategy
 from server.model.user_model import User
 from server.database import get_user_db
 from fastapi_users import FastAPIUsers
 from server.schemas.user_schema import UserCreate, UserRead, UserUpdate, UserRegistrationRequest
 import secrets
+from fastapi.templating import Jinja2Templates
+import bcrypt
 
 # --- strategy --- 
 # a token is generated and associated with a user_id in DB
@@ -53,3 +56,15 @@ async def generate_password_reset_token(user_id: str) -> str:
     password_token = "reset_password_" + secrets.token_urlsafe(32)
     await redis.set(f"{password_token}", user_id, ex=600)
     return password_token
+
+# hash password for storing
+def hash_password(password: str) -> str:
+    password_bytes = password.encode('utf-8')
+    hashed = bcrypt.hashpw(password_bytes, bcrypt.gensalt())
+    return hashed.decode('utf-8')
+
+# verify entered password against its hashed equivalent
+def verify_password(plain_password: str, hashed_password: str) -> bool:
+    password_bytes = plain_password.encode('utf-8')
+    hashed_bytes = hashed_password.encode('utf-8')
+    return bcrypt.checkpw(password_bytes, hashed_bytes)

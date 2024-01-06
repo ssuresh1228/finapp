@@ -10,8 +10,7 @@ class User(BeanieBaseUser, Document):
     phone_number: str
     hashed_password: str
 
-# user validation model - 
-# makes sure all fields are d before actually creating a user
+# user validation model
 class UserCreate(BaseModel):
     email: str
     fullname: str

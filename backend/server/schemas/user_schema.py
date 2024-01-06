@@ -4,15 +4,15 @@ from fastapi_users import schemas
 
 # used when a new user is registered
 # password field: plaintext is used here, needs to be hashed
-class UserCreate(schemas.BaseUserCreate):
+class UserCreate(schemas.BaseModel):
     email: str
     fullname: str
     username: str 
     phone_number: str
-    password: str
+    hashed_password: str
 
-# used to define how data is sent back in responses
-# this schema is what's used for the frontend
+# defines how data is sent back in responses
+# used for displaying in frontend
 class UserRead(schemas.BaseUser[PydanticObjectId]):
     email: str
     fullname: str
@@ -25,11 +25,11 @@ class UserUpdate(schemas.BaseUserUpdate):
     fullname: str
     username: str 
     phone_number: str
-    password: str
+    hashed_password: str
     
 class UserLoginRequest(BaseModel):
-    user_email: EmailStr 
-    user_password: str
+    entered_email: EmailStr 
+    entered_password: str
 
 class UserRegistrationRequest(BaseModel):
     email: str
