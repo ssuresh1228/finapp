@@ -52,11 +52,10 @@ async def logout(request: Request, user_manager = Depends(get_user_manager)):
     if not session_key:
         raise HTTPException(status_code=401, detail="Error - no active session found")
     # get the user's ID from the session key 
-    user_id = redis.get(session_key)
+    user_id = await redis.get(session_key)
     if not user_id:
             raise HTTPException(status_code=401, detail="Error - invalid user")
     # invalidate session token - delete from redis
-    await redis.delete(session_key)
     # clear cookie in response 
     response = Response()
     response.delete_cookie(key="session_key")
@@ -70,16 +69,17 @@ async def user_verification(verify_token: str, user_manager = Depends(get_user_m
         return RedirectResponse(url="http://localhost:8000/docs", status_code=303)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
+    await redis.delete(verify_token)
         
 @custom_auth_router.get("/forgot-password")
 async def forgot_password(request: ForgotPasswordRequest, user_manager = Depends(get_user_manager)):
-    # get the user's email from the request - call handler method 
-    user = await user_manager.get_user_by_email(request.password_email)
-    # if the user exists, generate a password reset token + URL, then mail it to them
-    if user:
-        # send the reset password email
+    try:
+        # get the user's email from the request - call handler method 
+        user = await user_manager.get_user_by_email(request.password_email)
         await user_manager.on_after_forgot_password(user)  
         return {"message": "If user with that email exists, a password reset email was sent"}
+    except ValueError as e:
+        raise HTTPException(status_code=404, detail=str(e))
 
 @custom_auth_router.get("/reset-password")
 async def reset_password(request: Request, reset_token: str, user_manager = Depends(get_user_manager)):
@@ -106,6 +106,6 @@ async def reset_password(reset_token:str = Form(...), new_password:str = Form(..
     await user_manager.update_user_password(user, reset_token, new_password)
 
     #on success: delete token, call handler, redirect to placeholder
-    redis.delete(reset_token)
+    await redis.delete(reset_token)
     await user_manager.on_after_reset_password(user)
     return RedirectResponse(url="http://localhost:8000/docs", status_code=303)

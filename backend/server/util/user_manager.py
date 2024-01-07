@@ -39,10 +39,11 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         
         new_user = User(**user_data.dict(), is_verified=True)
                 
-        # save user and delete cached data
+        # save user and delete cached data + token
         await new_user.save()
         await redis.delete(user_redis_json)
-     
+        await redis.delete(verify_token)
+        
     async def get_user_by_email(self, email:str):
         user = await User.find_one(User.email == email)
         if not user:
@@ -116,8 +117,11 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
 
     async def update_user_password(self, user: User, reset_token: str, new_password: str, request: Optional[Request] = None):
         # validate user's new password - hash it on success
-        new_hashed_password = bcrypt.hash(new_password)
+        new_hashed_password = hash_password(new_password)
         user.hashed_password = new_hashed_password
+        await user.save()
+        #delete the token 
+        await redis.delete(reset_token)
     
     async def on_after_reset_password(self, user: User, request: Optional[Request] = None):
         email = EmailSchema(email_addresses = [user.email])
