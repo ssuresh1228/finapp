@@ -1,5 +1,5 @@
 from fastapi import APIRouter, Depends, Request, HTTPException, Form, Response
-from fastapi.responses import RedirectResponse
+from fastapi.responses import RedirectResponse, JSONResponse
 from server.schemas.user_schema import *
 from server.schemas.email_schema import *
 from server.util.auth_utils import *
@@ -46,7 +46,7 @@ async def login(request: UserLoginRequest, response:Response, user_manager = Dep
         raise HTTPException(status_code=401, detail="Incorrect password")
     await user_manager.on_after_login(saved_user, response)
         
-@custom_auth_router.post("/logout")
+"""@custom_auth_router.post("/logout")
 async def logout(request: Request, user_manager = Depends(get_user_manager)):
     session_key = request.cookies.get("session_key")
     if not session_key:
@@ -54,12 +54,31 @@ async def logout(request: Request, user_manager = Depends(get_user_manager)):
     # get the user's ID from the session key 
     user_id = await redis.get(session_key)
     if not user_id:
-            raise HTTPException(status_code=401, detail="Error - invalid user")
-    # invalidate session token - delete from redis
-    # clear cookie in response 
+        raise HTTPException(status_code=401, detail="Error - invalid user")
+    await redis.delete(session_key)
+    # create a response object and delete its cookie
     response = Response()
     response.delete_cookie(key="session_key")
-    
+    return response"""
+
+@custom_auth_router.post("/logout")
+async def logout(request: Request, user_manager = Depends(get_user_manager)):
+    session_key = request.cookies.get("session_key")
+    if not session_key:
+        return JSONResponse(status_code=401, content={"detail": "No active session found"})
+
+    user_id = await redis.get(session_key)
+    if not user_id:
+        return JSONResponse(status_code=401, content={"detail": "Invalid user or session key"})
+
+    deleted_count = await redis.delete(session_key)
+    if deleted_count == 0:
+        return JSONResponse(status_code=500, content={"detail": "Failed to delete session key"})
+
+    response = Response()
+    response.delete_cookie(key="session_key")
+    return JSONResponse(content={"detail": "Logout successful, session ended"})
+
 @custom_auth_router.get("/verify")    
 async def user_verification(verify_token: str, user_manager = Depends(get_user_manager)):
     #call handler method for deserialization and validation  
