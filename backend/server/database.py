@@ -1,5 +1,4 @@
 import motor.motor_asyncio
-from beanie import Document
 from .model.user_model import User
 from fastapi_users.db import BeanieUserDatabase
 

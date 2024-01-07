@@ -1,4 +1,3 @@
-from bson.objectid import ObjectId
 
 @router.get("/report")
 async def get_report():

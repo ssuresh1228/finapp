@@ -1,21 +1,9 @@
-from beanie import PydanticObjectId
-from fastapi import FastAPI, APIRouter, Depends, Request, HTTPException, Form
+from fastapi import APIRouter, Depends, Request, HTTPException, Form, Response
 from fastapi.responses import RedirectResponse
-from fastapi_users import FastAPIUsers, InvalidPasswordException
-from server.model.user_model import User 
 from server.schemas.user_schema import *
 from server.schemas.email_schema import *
 from server.util.auth_utils import *
 from server.util.user_manager import get_user_manager
-from passlib.hash import bcrypt
-from pydantic import ValidationError
-import bcrypt
-import server.util.auth_utils
-# user model used for CRUD ops (on successful validation)
-fastapi_users = FastAPIUsers[User, PydanticObjectId](
-    get_user_manager,
-    [auth_backend] # single auth backend still needs to be passed as a single element list
-)
 
 custom_auth_router = APIRouter()
 
@@ -33,7 +21,7 @@ async def user_registration(request: UserRegistrationRequest, user_manager = Dep
         raise HTTPException(status_code=400, detail = str(e.reason))
     # hash password when it meets requirements:
     # create UserCreate instance with the hashed password 
-    user_hashed_password = auth_utils.hash_password(request.password)
+    user_hashed_password = hash_password(request.password)
     user_data = UserCreate(
         email = request.email,
         fullname = request.fullname,
@@ -44,9 +32,8 @@ async def user_registration(request: UserRegistrationRequest, user_manager = Dep
     # call handler method 
     await user_manager.on_after_register(user_data)
 
-#TODO: fix password comparison bug
 @custom_auth_router.post("/login")
-async def login(request: UserLoginRequest, user_manager = Depends(get_user_manager)):
+async def login(request: UserLoginRequest, response:Response, user_manager = Depends(get_user_manager)):
     try:
         # attempt to fetch the user by email
         saved_user = await user_manager.get_user_by_email(request.entered_email)
@@ -54,14 +41,26 @@ async def login(request: UserLoginRequest, user_manager = Depends(get_user_manag
         # If the user is not found, return a 400 error
         raise HTTPException(status_code=400, detail=str(e))
     
-    # Verify the password
+    # Verify the entered password
     if not verify_password(request.entered_password, saved_user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect password")
-    await user_manager.on_after_login(saved_user)
+    await user_manager.on_after_login(saved_user, response)
         
-#TODO: logout + redis session invalidation 
-# async def logout(request: UserLogoutRequest, user_manager = Depends(get_user_manager)):
-
+@custom_auth_router.post("/logout")
+async def logout(request: Request, user_manager = Depends(get_user_manager)):
+    session_key = request.cookies.get("session_key")
+    if not session_key:
+        raise HTTPException(status_code=401, detail="Error - no active session found")
+    # get the user's ID from the session key 
+    user_id = redis.get(session_key)
+    if not user_id:
+            raise HTTPException(status_code=401, detail="Error - invalid user")
+    # invalidate session token - delete from redis
+    await redis.delete(session_key)
+    # clear cookie in response 
+    response = Response()
+    response.delete_cookie(key="session_key")
+    
 @custom_auth_router.get("/verify")    
 async def user_verification(verify_token: str, user_manager = Depends(get_user_manager)):
     #call handler method for deserialization and validation  

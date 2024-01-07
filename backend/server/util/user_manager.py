@@ -1,21 +1,15 @@
 from server.model.user_model import User, UserCreate
 from server.database import get_user_db
 from fastapi_users import BaseUserManager, InvalidPasswordException
-from fastapi_users.password import PasswordHelper
 from fastapi_users_db_beanie import ObjectIDIDMixin 
-from fastapi_users.db import BeanieBaseUser, BeanieUserDatabase
-from fastapi import Depends, Request
-from fastapi.responses import HTMLResponse
-from typing import Optional, Union, Dict, Any
-from beanie import PydanticObjectId, Document
-from fastapi_mail import FastMail, MessageSchema, ConnectionConfig, MessageType
-from starlette.responses import JSONResponse
+from fastapi_users.db import BeanieUserDatabase
+from fastapi import Depends, Request, Response
+from typing import Optional, Dict, Any
+from beanie import PydanticObjectId
 from server.util import email_utils
 from server.util.auth_utils import *
 from server.schemas.email_schema import EmailSchema
 from server.schemas.user_schema import *
-from passlib.context import CryptContext
-from passlib.hash import bcrypt
 import bcrypt
 from fastapi.templating import Jinja2Templates # temp for functionality until frontend
 from bson import ObjectId
@@ -66,13 +60,21 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
             raise ValueError("Error - user not found")
         return user
 
-    async def on_after_login(self, user: User, request: Optional[Request] = None, response: Optional[Request] = None):
+    async def on_after_login(self, user: User, response: Response):
         #TODO: reports/transactions functionality 
-        # redis token is valid for 1 hour
-        session_key = await generate_session_token(str(user.id))
-        await redis.set(f"{session_key}", str(user.id))
-        print("\n-----\nSERVER LOG:", f"user {user.id} logged in\n-----\n")
+        # generate a session token
+        session_key = await generate_session_token(str(user.id))        
+        # set session key as a cookie in response
+        response.set_cookie(
+            key="session_key", 
+            value=session_key, 
+            httponly=True,     # prevent client sice cookie access
+            secure=False,      # cookie only sent over HTTPS (set to false for local testing)
+            max_age=86400
+        )
         
+        print("\n-----\nSERVER LOG:", f"user {user.id} logged in\ncreating session key: {session_key}\n-----\n")
+            
     async def on_after_register(self, user_data: UserCreate, request: Optional[Request] = None):
         # /register handler - creates token and sends email for new user verification
         # verification token and construct the verification URL

@@ -1,11 +1,6 @@
-from fastapi import FastAPI
 from fastapi_mail import ConnectionConfig, MessageType, MessageSchema, FastMail
-from pydantic import EmailStr, BaseModel
-from typing import List, Dict, Any
 from pathlib import Path
 from server.schemas.email_schema import EmailSchema
-from server.model.user_model import User
-from server.schemas.user_schema import UserCreate
 
 # email sender config
 # SMTP server: docker run -p 1080:1080 -p 1025:1025 maildev/maildev

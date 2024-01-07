@@ -5,7 +5,7 @@ from server.model.user_model import User
 from server.model.report_model import Report
 from server.database import db
 from pydantic import BaseModel
-from server.routers import user_router, auth_router
+from server.routers import auth_router
 
 app = FastAPI()
 router = APIRouter()
@@ -31,10 +31,4 @@ app.include_router(
     auth_router.custom_auth_router,
     prefix = "/auth",
     tags = ["auth"]
-)
-
-app.include_router(
-    user_router.router,
-    prefix = "/user",
-    tags = ["user functions"]
 )

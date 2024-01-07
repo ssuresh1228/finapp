@@ -1,4 +1,3 @@
-from bson.objectid import ObjectId
 
 @router.get("/transaction")
 async def get_transaction():

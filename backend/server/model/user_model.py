@@ -1,6 +1,6 @@
-from beanie import Document, Link, PydanticObjectId
-from pydantic import BaseModel, Field
-from fastapi_users.db import BeanieBaseUser, BeanieUserDatabase
+from beanie import Document
+from pydantic import BaseModel
+from fastapi_users.db import BeanieBaseUser
 
 # create user model 
 class User(BeanieBaseUser, Document):
