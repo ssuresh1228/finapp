@@ -1,4 +1,5 @@
 from fastapi import FastAPI, APIRouter 
+from fastapi.middleware.cors import CORSMiddleware
 from fastapi_users import FastAPIUsers
 from beanie import init_beanie
 from server.model.user_model import User
@@ -9,6 +10,17 @@ from server.routers import auth_router
 
 app = FastAPI()
 router = APIRouter()
+
+
+# CORS config
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
+
 
 @app.get("/", tags=["Root"])
 async def index() -> dict:

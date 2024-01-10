@@ -45,21 +45,6 @@ async def login(request: UserLoginRequest, response:Response, user_manager = Dep
     if not verify_password(request.entered_password, saved_user.hashed_password):
         raise HTTPException(status_code=401, detail="Incorrect password")
     await user_manager.on_after_login(saved_user, response)
-        
-"""@custom_auth_router.post("/logout")
-async def logout(request: Request, user_manager = Depends(get_user_manager)):
-    session_key = request.cookies.get("session_key")
-    if not session_key:
-        raise HTTPException(status_code=401, detail="Error - no active session found")
-    # get the user's ID from the session key 
-    user_id = await redis.get(session_key)
-    if not user_id:
-        raise HTTPException(status_code=401, detail="Error - invalid user")
-    await redis.delete(session_key)
-    # create a response object and delete its cookie
-    response = Response()
-    response.delete_cookie(key="session_key")
-    return response"""
 
 @custom_auth_router.post("/logout")
 async def logout(request: Request, user_manager = Depends(get_user_manager)):
