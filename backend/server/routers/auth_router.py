@@ -69,8 +69,8 @@ async def user_verification(verify_token: str, user_manager = Depends(get_user_m
     #call handler method for deserialization and validation  
     try:
         await user_manager.save_verified_user(f"{verify_token}")
-        # temp redirect to docs page
-        return RedirectResponse(url="http://localhost:8000/docs", status_code=303)
+        # redirects to frontend root page
+        return RedirectResponse(url="http://localhost:3000", status_code=303)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     await redis.delete(verify_token)
@@ -109,7 +109,7 @@ async def reset_password(reset_token:str = Form(...), new_password:str = Form(..
     await user_manager.validate_reset_password(new_password)
     await user_manager.update_user_password(user, reset_token, new_password)
 
-    #on success: delete token, call handler, redirect to placeholder
+    #on success: delete token, call handler, redirect to frontend root page
     await redis.delete(reset_token)
     await user_manager.on_after_reset_password(user)
-    return RedirectResponse(url="http://localhost:8000/docs", status_code=303)
+    return RedirectResponse(url="http://localhost:3000/", status_code=303)

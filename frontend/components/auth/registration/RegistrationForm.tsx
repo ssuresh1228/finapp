@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { UserRegistrationData } from './types';
 import styles from './RegistrationForm.module.css';
+import { useRouter } from 'next/router';
 
 /*
     1. import typescript data structure (FastAPI schema)
@@ -10,6 +11,7 @@ import styles from './RegistrationForm.module.css';
     4. access defined fields via the prop inside the component (accessing fields in instance of schema)
 */
 
+const endpoint='http://localhost:8000/auth/register'
 const RegistrationForm = () => {
     // create the react component with useState
     const [userRegistrationData, setUserRegistrationData] = useState<UserRegistrationData>({
@@ -24,7 +26,7 @@ const RegistrationForm = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const response = await fetch('http://localhost:8000/auth/register', {
+            const response = await fetch(endpoint, {
                 method:'POST',
                 headers: {'content-type':'application/json'},
                 //send body as json 
