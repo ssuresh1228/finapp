@@ -2,6 +2,7 @@
 import React, { useState } from 'react';
 import { UserRegistrationData } from './types';
 import styles from './RegistrationForm.module.css';
+import Link from 'next/link'
 import { useRouter } from 'next/router';
 
 /*
@@ -49,6 +50,7 @@ const RegistrationForm = () => {
 
     // pass structure into component to access fields 
     return (
+        <div>
         <form className={styles.authForm} onSubmit={handleSubmit}>
             <input 
                 className={styles.input}
@@ -88,6 +90,13 @@ const RegistrationForm = () => {
             />
             <button className={styles.button} type='submit'>Register</button>
         </form>
+            <Link  href="/">
+                <h1 className={styles.OutgoingLink}> Go Home </h1>
+            </Link>
+            <Link href="/auth/login">
+                <h1 className={styles.OutgoingLink}> Already have an account? Log-in here </h1>
+            </Link>
+    </div>
     );
 };
 

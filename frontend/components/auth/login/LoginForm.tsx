@@ -3,6 +3,7 @@ import React, {useState, useEffect} from "react";
 import { UserLoginData } from "./types";
 import styles from './LoginForm.module.css'
 import { useRouter } from 'next/navigation';
+import Link from 'next/link'
 
 
 /*
@@ -51,6 +52,7 @@ const LoginForm = () => {
 
     //pass structure into component to access fields 
     return(
+        <div>
         <form className={styles.LoginForm} onSubmit={handleSubmit}>
             <input 
                 className={styles.input}
@@ -67,6 +69,18 @@ const LoginForm = () => {
             />
             <button className={styles.button} type='submit'>Login</button>
         </form>
+        
+            <Link  href="/">
+                <h1 className={styles.OutgoingLink}>
+                Go Home
+                </h1>
+            </Link>
+            <Link href="/auth/register">
+                <h1 className={styles.OutgoingLink}>
+                Register for an account here
+                </h1>
+            </Link>
+        </div>
     )
 }
 export default LoginForm;

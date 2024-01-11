@@ -24,3 +24,7 @@
 .button:hover {
     background-color: darkblue;
 }
+
+.OutgoingLink {
+    text-align: center;
+}
