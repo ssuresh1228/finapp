@@ -80,7 +80,8 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         # /register handler - creates token and sends email for new user verification
         # verification token and construct the verification URL
         verify_token = await generate_verification_token(user_data)
-        verification_url = f"http://localhost:8000/auth/verify?verify_token={verify_token}"
+        # redirection link to frontend used in email 
+        verification_url = f"http://localhost:3000/verify?verify_token={verify_token}"
         email = EmailSchema(email_addresses = [user_data.email])
         print("\n-----\nSERVER LOG:",  f"User {user_data.fullname} registered and needs verification: {verify_token}.\n-----\n")
         await email_utils.send_verification_email(email, verification_url)

@@ -64,16 +64,19 @@ async def logout(request: Request, user_manager = Depends(get_user_manager)):
     response.delete_cookie(key="session_key")
     return JSONResponse(content={"detail": "Logout successful, session ended"})
 
-@custom_auth_router.get("/verify")    
-async def user_verification(verify_token: str, user_manager = Depends(get_user_manager)):
+@custom_auth_router.post("/verify")    
+async def user_verification(request: Request, user_manager = Depends(get_user_manager)):
     #call handler method for deserialization and validation  
+    verify_token = request.json() ["verify_token"]
     try:
         await user_manager.save_verified_user(f"{verify_token}")
-        # redirects to frontend root page
-        return RedirectResponse(url="http://localhost:3000", status_code=303)
+        # redirect to frontend root on success (handled in jinja template)
     except ValueError as e:
         raise HTTPException(status_code=400, detail=str(e))
     await redis.delete(verify_token)
+    
+    # used for redirection
+    return {"message": "Verification Successful"}
         
 @custom_auth_router.get("/forgot-password")
 async def forgot_password(request: ForgotPasswordRequest, user_manager = Depends(get_user_manager)):
@@ -109,7 +112,6 @@ async def reset_password(reset_token:str = Form(...), new_password:str = Form(..
     await user_manager.validate_reset_password(new_password)
     await user_manager.update_user_password(user, reset_token, new_password)
 
-    #on success: delete token, call handler, redirect to frontend root page
+    #on success: delete token, call handler, redirect to frontend root page (handled in jinja template)
     await redis.delete(reset_token)
     await user_manager.on_after_reset_password(user)
-    return RedirectResponse(url="http://localhost:3000/", status_code=303)

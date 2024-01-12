@@ -27,19 +27,19 @@ const RegistrationForm = () => {
     const handleSubmit = async (event: React.FormEvent) => {
         event.preventDefault();
         try {
-            const response = await fetch(endpoint, {
+            const request = await fetch(endpoint, {
                 method:'POST',
                 headers: {'content-type':'application/json'},
                 //send body as json 
                 body: JSON.stringify(userRegistrationData),
             });
 
-            if(!response.ok) {
-                throw new Error(`${response.status}`);
+            if(!request.ok) {
+                throw new Error(`${request.status}`);
             }
 
             // LOGGING
-            const endpointResponse = await response.json();
+            const endpointResponse = await request.json();
             console.log(endpointResponse)
 
         } catch (error) {
