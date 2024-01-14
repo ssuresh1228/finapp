@@ -1,5 +1,5 @@
 from server.model.user_model import User, UserCreate
-from server.database import get_user_db
+from server.dependencies import get_user_db
 from fastapi_users import BaseUserManager, InvalidPasswordException
 from fastapi_users_db_beanie import ObjectIDIDMixin 
 from fastapi_users.db import BeanieUserDatabase
@@ -62,7 +62,10 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         return user
 
     async def on_after_login(self, user: User, response: Response):
+<<<<<<< HEAD
+=======
         #TODO: reports/transactions functionality 
+>>>>>>> main
         # generate a session token
         session_key = await generate_session_token(str(user.id))        
         # set session key as a cookie in response

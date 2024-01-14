@@ -1,6 +1,10 @@
 from beanie import Document
 from pydantic import BaseModel
 from fastapi_users.db import BeanieBaseUser
+<<<<<<< HEAD
+from datetime import datetime, timedelta
+=======
+>>>>>>> main
 
 # create user model 
 class User(BeanieBaseUser, Document):
@@ -17,7 +21,17 @@ class UserCreate(BaseModel):
     username: str 
     phone_number: str
     hashed_password: str
+<<<<<<< HEAD
+
+# used for local caching 
+class Settings: 
+    use_cache=True
+    cache_expiration_time = timedelta(seconds=10)
+    cache_capacity = 5 # max queries to cache
+
+=======
     
+>>>>>>> main
 class Config:
     schema_example = {
         "user example": {
