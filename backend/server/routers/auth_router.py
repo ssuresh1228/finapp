@@ -3,7 +3,11 @@ from fastapi.responses import RedirectResponse, JSONResponse
 from server.schemas.user_schema import *
 from server.schemas.email_schema import *
 from server.util.auth_utils import *
+<<<<<<< HEAD
+from server.dependencies import get_user_manager
+=======
 from server.util.user_manager import get_user_manager
+>>>>>>> main
 
 custom_auth_router = APIRouter()
 
@@ -75,7 +79,10 @@ async def user_verification(request: Request, user_manager = Depends(get_user_ma
         raise HTTPException(status_code=400, detail=str(e))
     await redis.delete(verify_token)
     
+<<<<<<< HEAD
+=======
     # used for redirection
+>>>>>>> main
     return {"message": "Verification Successful"}
         
 @custom_auth_router.get("/forgot-password")
