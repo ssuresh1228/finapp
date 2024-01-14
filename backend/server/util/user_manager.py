@@ -62,6 +62,10 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         return user
 
     async def on_after_login(self, user: User, response: Response):
+<<<<<<< HEAD
+=======
+        #TODO: reports/transactions functionality 
+>>>>>>> main
         # generate a session token
         session_key = await generate_session_token(str(user.id))        
         # set session key as a cookie in response
