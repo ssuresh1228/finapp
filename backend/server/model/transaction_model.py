@@ -1,16 +1,5 @@
-<<<<<<< HEAD
-from beanie import Document, PydanticObjectId
-from pydantic import BaseModel, Field, ValidationError
-from fastapi import FastAPI
-from typing import List, Union, Optional
-from decimal import Decimal
-from server.util.types.PyDecimal128 import PyDecimal128 as pydecimal128
-from typing_extensions import Annotated
-from datetime import date as date_type, datetime
-=======
 from beanie import Document, Link, PydanticObjectId
 from pydantic import BaseModel, Field
->>>>>>> main
 
 # nested in transaction model
 class Category(BaseModel):
