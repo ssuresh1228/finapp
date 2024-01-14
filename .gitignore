@@ -1,1 +1,4 @@
 venv/
+thunder*
+*.code-workspace
+**/__pycache__
