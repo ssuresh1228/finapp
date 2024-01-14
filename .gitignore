@@ -1,9 +1,4 @@
 venv/
-<<<<<<< HEAD
-thunder*
-*.code-workspace
-**/__pycache__
-=======
 __pycache__/
 finapp.code-workspace
 *.pyc
@@ -43,4 +38,3 @@ yarn-error.log*
 # typescript
 *.tsbuildinfo
 next-env.d.ts
->>>>>>> main
