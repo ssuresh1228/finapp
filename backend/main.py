@@ -1,12 +1,24 @@
-from fastapi import FastAPI, APIRouter 
+from fastapi import FastAPI, APIRouter
+from fastapi.middleware.cors import CORSMiddleware 
 from beanie import init_beanie
 from server.model.user_model import User, UserCreate
 from server.model.report_model import Report
+from server.model.transaction_model import Transaction
 from server.database import db
 from pydantic import BaseModel
-from server.routers import user_route
+from server.routers import auth_router, transaction_router
 
 app = FastAPI()
+router = APIRouter()
+
+# CORS config
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["*"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"]
+)
 
 @app.get("/", tags=["Root"])
 async def index() -> dict:
@@ -21,8 +33,18 @@ async def beanie_startup():
         document_models= [
             User,
             Report,
+            Transaction
         ],
     )
 
-# register routers here
-app.include_router(user_route.router)
+# user registration, verification, forgot password, reset password
+app.include_router(
+    auth_router.custom_auth_router,
+    prefix = "/auth",
+    tags = ["auth"]
+)
+
+app.include_router(
+    transaction_router.router,
+    tags = ["transaction"]
+)
