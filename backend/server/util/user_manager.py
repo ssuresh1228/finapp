@@ -1,5 +1,5 @@
 from server.model.user_model import User, UserCreate
-from server.database import get_user_db
+from server.dependencies import get_user_db
 from fastapi_users import BaseUserManager, InvalidPasswordException
 from fastapi_users_db_beanie import ObjectIDIDMixin 
 from fastapi_users.db import BeanieUserDatabase

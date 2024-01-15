@@ -4,13 +4,13 @@ from fastapi_users import FastAPIUsers
 from beanie import init_beanie
 from server.model.user_model import User
 from server.model.report_model import Report
+from server.model.transaction_model import Transaction
 from server.database import db
 from pydantic import BaseModel
 from server.routers import auth_router
 
 app = FastAPI()
 router = APIRouter()
-
 
 # CORS config
 app.add_middleware(
@@ -20,7 +20,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"]
 )
-
 
 @app.get("/", tags=["Root"])
 async def index() -> dict:
@@ -35,6 +34,7 @@ async def beanie_startup():
         document_models= [
             User,
             Report,
+            Transaction
         ],
     )
 
