@@ -1,41 +1,51 @@
 'use client'
-import React, {useEffect} from "react"
-import { useRouter } from "next/router"
-import styles from '/VerificationForm.module.css'
+import React, { useEffect } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
+import styles from './VerificationForm.module.css';
 
-const endpoint = 'http://localhost:8000/auth/verify'
-// useState: instantiate VerificationData
-const VerifyPage: React.FC = () => {
+const VerifyPage = () => {
+    const searchParams = useSearchParams();
     const router = useRouter();
-    const verify_token = router.query.verify_token as string
+    const endpoint = 'http://localhost:8000/auth/verify'
 
-    useEffect(() => {
-        const verifyUser = async () => {
-            if (typeof verify_token === 'string') {
-                try {
-                    const response = await fetch(endpoint, {
-                        method: 'POST',
-                        headers: {'Content-Type': 'application/json'},
-                        body: JSON.stringify({ verify_token }),
-                    });
+    //send post request with token 
+    const verifyUser = async(backendToken: string) => {
+      try {
+        const response = await fetch(endpoint, {
+          method:'POST',
+          headers:{'content-type': 'application/json'},
+          body: JSON.stringify({ verify_token: backendToken })
+        });
+
+        if(!response.ok){
+          throw new Error('Error - verification failed');
+        }
+
+        // Redirect to login page on successful verification
+        alert("ATTENTION: thank you for your attention")
+        router.push('/auth/login')
+      } catch (error) {
+        console.log("Error caught: ", error)
+      }
+    }
     
-                    if (response.ok) {
-                        // route to login on success
-                        router.push("/login");
-                    } else {
-                        console.error("Verification failed");
-                    }
-                } catch (error) {
-                    // error handling
-                    console.error("Error - failed to verify: ", error);
-                }
-            }
-        };
-        verifyUser();
-    }, [verify_token]);
+    //get the token from URL and call verifyUser if token is valid
+    useEffect(() => {
+      const verify_token = searchParams.get("verify_token")
+      if(verify_token) {
+        verifyUser(verify_token)
+        alert("Successfully verified, routing to login page")
+      } else {
+        console.error("Error - token is invalid or expired")
+      }
+    }, [searchParams]);
+
 
     return (
-        <div className={styles.status}> verifying user...</div>
-    )
-}
+      <div className={styles.status}>
+        verifying user...
+      </div>
+    );
+};
+
 export default VerifyPage;

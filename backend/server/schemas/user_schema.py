@@ -2,9 +2,8 @@ from beanie import PydanticObjectId
 from pydantic import BaseModel, EmailStr
 from fastapi_users import schemas
 
-# used when a new user is registered
-# password field: plaintext is used here, needs to be hashed
-class UserCreate(schemas.BaseModel):
+
+class UserCreateValidator(BaseModel):
     email: str
     fullname: str
     username: str 
@@ -13,27 +12,41 @@ class UserCreate(schemas.BaseModel):
 
 # defines how data is sent back in responses
 # used for displaying in frontend
-class UserRead(schemas.BaseUser[PydanticObjectId]):
+class UserReadValidator(BaseModel):
     email: str
     fullname: str
     username: str 
     phone_number: str
 
 # used when an existing user updates their info
-class UserUpdate(schemas.BaseUserUpdate):
+class UserUpdateValidator(BaseModel):
     email: str
     fullname: str
     username: str 
     phone_number: str
     hashed_password: str
     
-class UserLoginRequest(BaseModel):
-    entered_email: EmailStr 
-    entered_password: str
+class UserLoginValidator(BaseModel):
+    email: EmailStr 
+    password: str
 
-class UserRegistrationRequest(BaseModel):
+class UserRegistrationValidator(BaseModel):
     email: str
     fullname: str
     username: str
     phone_number: str
-    password: str
+    hashed_password: str
+    
+class UserEmailValidator(BaseModel):
+    email: str
+    
+class ForgotPasswordRequest(BaseModel):
+    email: EmailStr
+
+class PasswordResetRequest(BaseModel):
+    new_password:str
+    confirm_password:str
+    reset_token: str
+
+class VerificationRequest(BaseModel):
+    verify_token: str

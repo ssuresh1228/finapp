@@ -16,7 +16,7 @@ class UserCreate(BaseModel):
     fullname: str
     username: str 
     phone_number: str
-    hashed_password: str
+    password: str
     
 class Config:
     schema_example = {
@@ -25,6 +25,6 @@ class Config:
             "fullname": "firstname lastname",
             "username": "user123",
             "phone_number":"123-456-7890",
-            "hashed_password": "hashedpassword123"
+            "password": "hashedpassword123"
         }
     }
