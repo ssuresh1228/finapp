@@ -31,7 +31,7 @@ class AuthManager:
             key="session_key",
             value=session_key,
             httponly=True, # prevents client side access
-            secure=True, #  cookie only sent over HTTPS if true (false for local testing)
+            secure=False, #  cookie only sent over HTTPS if true (false for local testing)
             max_age=86400
         )
         return session_key
@@ -53,7 +53,6 @@ class AuthManager:
     async def verify_password(self, plain_password: str, hashed_password: str) -> bool:
         return bcrypt.checkpw(plain_password.encode('utf-8'), hashed_password.encode('utf-8'))
     
-    # gets verification token to extract user data from 
     async def get_redis_token(self, token: str):
         return await redis.get(f"{token}")
         

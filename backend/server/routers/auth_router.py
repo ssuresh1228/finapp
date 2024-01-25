@@ -16,8 +16,10 @@ async def user_registration(request: UserCreateValidator, user_manager = Depends
 async def login(login_request: UserLoginValidator, response: Response, user_manager = Depends(get_user_manager), auth_manager = Depends(get_auth_manager)):
     await user_manager.user_login(login_request, response, auth_manager)
 
+
 @custom_auth_router.post("/logout")
 async def logout(request: Request, user_manager = Depends(get_user_manager), auth_manager = Depends(get_auth_manager)):
+    #return {"cookies": request.cookies}
     await user_manager.user_logout(request, auth_manager)
 
 @custom_auth_router.post("/verify")    

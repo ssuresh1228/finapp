@@ -6,7 +6,10 @@ export default function Home() {
   return (
     <main>
       <h1 className={styles.title}>Root Page</h1>
-      <h1 className= {styles.log}><Link href = "/auth/login">Register/Login</Link></h1>
+      <div className={styles.buttonContainer}>
+        <Link href="/auth/login" className={styles.button}>Login</Link>
+        <Link href="/auth/register" className={styles.button}>Register</Link>
+      </div>
     </main>
-  )
+  );
 }

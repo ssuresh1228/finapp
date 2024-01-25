@@ -98,66 +98,66 @@ const RegistrationForm = () => {
     // pass structure into component to access fields 
     return (
         <div>
-        <form className={styles.authForm} onSubmit={handleSubmit}>
-            <input 
-                className={styles.input}
-                type="text"
-                value={userRegistrationData.email}
-                onChange={(e) => setUserRegistrationData({ ...userRegistrationData, email: e.target.value })}
-                placeholder="Enter email address"
-            />
-            <input 
-                className={styles.input}
-                type="text"
-                value={userRegistrationData.fullname}
-                onChange={(e) => setUserRegistrationData({ ...userRegistrationData, fullname: e.target.value })}
-                placeholder="Enter your name"
-            />
-            <input 
-                className={styles.input}
-                type="text"
-                value={userRegistrationData.username}
-                onChange={(e) => setUserRegistrationData({ ...userRegistrationData, username: e.target.value })}
-                placeholder="Enter your username"
-            />
-            <input 
-                className={styles.input}
-                type="text"
-                value={userRegistrationData.phone_number}
-                onChange={(e) => setUserRegistrationData({ ...userRegistrationData, phone_number: e.target.value })}
-                placeholder="Enter your phone number"
-            />
-            <input 
-                className={styles.input}
-                type="password"
-                name="password"
-                value={userRegistrationData.hashed_password}
-                onChange={showPasswordTarget}
-                placeholder="Enter your password"
-            />
-            <input
-                className={styles.input}
-                type="password"
-                name="password"
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
-                placeholder="Confirm your password"
-            />            
-            <button className={styles.button} type='submit'>Register</button>
-            <div className={styles.passwordRequirements}>
-            
-            <h2 className={styles.passwordTarget}>Password requirements</h2>
-            <div style={{ color: hasMinLength ? 'green' : 'red'}}>At least 5 characters</div>
-            <div style={{ color: hasUpper ? 'green' : 'red' }}>At least one uppercase letter</div>
-            <div style={{ color: hasLower ? 'green' : 'red' }}>At least one lowercase letter</div>
-            <div style={{ color: hasNumber ? 'green' : 'red' }}>At least one number</div>
+            <h1 className={styles.title}>User Registration</h1>
+            <form className={styles.authForm} onSubmit={handleSubmit}>
+                <input 
+                    className={styles.input}
+                    type="text"
+                    value={userRegistrationData.email}
+                    onChange={(e) => setUserRegistrationData({ ...userRegistrationData, email: e.target.value })}
+                    placeholder="Enter email address"
+                />
+                <input 
+                    className={styles.input}
+                    type="text"
+                    value={userRegistrationData.fullname}
+                    onChange={(e) => setUserRegistrationData({ ...userRegistrationData, fullname: e.target.value })}
+                    placeholder="Enter your name"
+                />
+                <input 
+                    className={styles.input}
+                    type="text"
+                    value={userRegistrationData.username}
+                    onChange={(e) => setUserRegistrationData({ ...userRegistrationData, username: e.target.value })}
+                    placeholder="Enter your username"
+                />
+                <input 
+                    className={styles.input}
+                    type="text"
+                    value={userRegistrationData.phone_number}
+                    onChange={(e) => setUserRegistrationData({ ...userRegistrationData, phone_number: e.target.value })}
+                    placeholder="Enter your phone number"
+                />
+                <input 
+                    className={styles.input}
+                    type="password"
+                    name="password"
+                    value={userRegistrationData.hashed_password}
+                    onChange={showPasswordTarget}
+                    placeholder="Enter your password"
+                />
+                <input
+                    className={styles.input}
+                    type="password"
+                    name="password"
+                    value={confirmPassword}
+                    onChange={(e) => setConfirmPassword(e.target.value)}
+                    placeholder="Confirm your password"
+                />            
+                <button className={styles.button} type='submit'>Register</button>
+                <div className={styles.buttonContainer}>
+                <h2 className={styles.passwordTarget}>Password requirements</h2>
+                    <div style={{ color: hasMinLength ? 'green' : 'red'}}>At least 5 characters</div>
+                    <div style={{ color: hasUpper ? 'green' : 'red' }}>At least one uppercase letter</div>
+                    <div style={{ color: hasLower ? 'green' : 'red' }}>At least one lowercase letter</div>
+                    <div style={{ color: hasNumber ? 'green' : 'red' }}>At least one number</div>
+                </div>
+                <div className={styles.errorMessage}>{errorMessage}</div>
+            </form>
+            <div className={styles.buttonContainer}> Already have an account?
+            <Link href="/auth/login" className={styles.button}>Log-in here</Link>
             </div>
-            <div className={styles.errorMessage}>{errorMessage}</div>
-        </form>
-            <Link href="/auth/login">
-                <h1 className={styles.OutgoingLink}> Already have an account? Log-in here </h1>
-            </Link>
-    </div>
+        </div>
     );
 };
 

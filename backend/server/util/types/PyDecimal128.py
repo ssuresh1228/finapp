@@ -30,7 +30,7 @@ class PyDecimal128(_Decimal128):
     # define how pydantic should handle validation
     @classmethod
     def __validate(cls, v, _:core_schema.ValidationInfo):
-        # checks in incoming value v is already an instance of mongo Decimal128 and returns it if it is (no validation needed to save in db)
+        # checks in incoming value v is already an instance of mongo Decimal128 and returns it if (no validation needed to save in db)
         if isinstance(v, _Decimal128):
             return v
         return cls(Decimal(v))  # wraps incoming value to python Decimal, then wraps that with Decimal128 so it's stored in db with valid type

@@ -5,13 +5,13 @@ from fastapi import Request, Response, HTTPException
 from fastapi.responses import JSONResponse
 from beanie import PydanticObjectId
 from server.schemas.user_schema import *
-from fastapi.templating import Jinja2Templates # temp for functionality until frontend
+from fastapi.templating import Jinja2Templates
 from bson import ObjectId
 from loguru import logger
 
 class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):   
     
-    @logger.catch
+    
     async def get_user_by_id(self, user_id: str):
         # get user ID and check if valid
         try:
@@ -23,7 +23,7 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
             raise ValueError("Error - user not found")
         return user
     
-    @logger.catch
+    
     async def check_user_exists(self, request: UserReadValidator):
         # query for user with same email - raise an error if they exist 
         email_to_check = request.email
@@ -32,7 +32,7 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
             raise ValueError("Error: user already registered, log in instead")
         return None
     
-    @logger.catch
+    
     async def validate_new_user_password(self, request: UserRegistrationValidator) -> None:
         entered_password = request.hashed_password
         if len(entered_password) < 5:
@@ -44,19 +44,19 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         if request.fullname in entered_password:
             raise InvalidPasswordException(reason = "Password cannot contain a name")
     
-    @logger.catch
+    
     async def validate_reset_password(self, new_password: str):
         if len(new_password) < 5:
             raise InvalidPasswordException("Password must be longer than 5 characters.")
     
-    @logger.catch
+    
     async def get_user_by_email(self, email:str):
         user = await User.find_one(User.email == email)
         if not user:
             raise ValueError("Error - user email does not exist or account is not verified")
         return user
     
-    #@logger.catch
+    
     async def user_registration(self, registration_request: UserRegistrationValidator, email_manager, auth_manager):
         try:
             # check if user already exists
@@ -75,7 +75,7 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         except Exception as e:
             raise HTTPException(status_code=400, detail=str(e))
 
-    #@logger.catch
+    
     async def verify_user(self, request: VerificationRequest, auth_manager):
         try: 
             # check if token is valid 
@@ -104,7 +104,7 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
             raise HTTPException(status_code=400, detail=str(e))
         return {"message": f"{new_user.email} verification was successful"}
     
-    @logger.catch
+    
     async def forgot_password(self, password_request: ForgotPasswordRequest, email_manager, auth_manager):
         # attempt to get the user's email address 
         try:
@@ -119,7 +119,7 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         except ValueError as e:
             raise HTTPException(status_code=404, detail=str(e))
     
-    @logger.catch
+    
     async def user_login(self, request: UserLoginValidator, response: Response, auth_manager):
         # attempt to find user by email 
         try: 
@@ -138,7 +138,7 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         except ValueError as e:
             raise HTTPException(status_code=400, detail=str(e))       
 
-    #@logger.catch
+    
     async def update_user_password(self, reset_request: PasswordResetRequest, email_manager, auth_manager):
         try: 
             user_id = await auth_manager.get_redis_token(reset_request.reset_token)
@@ -155,9 +155,10 @@ class UserManager(ObjectIDIDMixin, BaseUserManager[User, PydanticObjectId]):
         except ValueError as e:
             raise HTTPException(status_code=400, detail = str(e))
     
-    @logger.catch
+    
     async def user_logout(self, request: Request, auth_manager):
         session_key = request.cookies.get("session_key")
+        print(f"\n\nSession Key to delete: {session_key}\n\n")
         if not session_key:
             return JSONResponse(status_code=401, content={"detail": "No active session found"})
 

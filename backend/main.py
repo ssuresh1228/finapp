@@ -7,14 +7,19 @@ from server.model.transaction_model import Transaction
 from server.database import db
 from pydantic import BaseModel
 from server.routers import auth_router, transaction_router
+from server.dependencies import get_auth_manager, get_user_manager
 
 app = FastAPI()
 router = APIRouter()
 
-# CORS config
+# tying dependencies to app state to use in middleware session verification
+app.state.auth_manager = get_auth_manager()
+app.state.user_manager = get_user_manager()
+
+
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"],
+    allow_origins=["http://localhost:3000"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"]
