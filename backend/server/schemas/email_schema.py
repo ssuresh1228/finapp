@@ -1,4 +1,4 @@
-from pydantic import EmailStr, BaseModel
+"""from pydantic import EmailStr, BaseModel
 from typing import List, Dict, Any, Optional
 
 # use Jinja2 HTML templates 
@@ -9,11 +9,10 @@ class EmailSchema(BaseModel):
 class ForgotPasswordRequest(BaseModel):
     password_email: EmailStr
 
-class PasswordResetForm(BaseModel):
-    reset_token: str
-    new_password: str
-
-class ConfirmPasswordReset(BaseModel):
+class PasswordResetRequest(BaseModel):
     reset_token:str
     new_password:str
-    confirm_password:str
+    reset_token:str
+
+class VerificationRequest(BaseModel):
+    verify_token: str"""

@@ -14,3 +14,11 @@ async def get_transaction_manager():
     # Local import to avoid circular dependency
     from server.util.transaction_manager import TransactionManager
     yield TransactionManager()
+    
+async def get_email_manager():
+    from server.util.email_manager import EmailManager
+    yield EmailManager()
+
+async def get_auth_manager():
+    from server.util.auth_manager import AuthManager
+    yield AuthManager()

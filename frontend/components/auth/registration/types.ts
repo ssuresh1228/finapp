@@ -3,5 +3,5 @@ export interface UserRegistrationData{
     fullname: string;
     username: string; 
     phone_number: string;
-    password: string;
+    hashed_password: string;
 }
